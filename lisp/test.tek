@@ -6,7 +6,7 @@
 (fn foo () (println "This function takes no arguments."))
 (foo)
 
-((fn (x) (p x)) "This is a call to an anonymous function")
+((fn (x) (println x)) "This is a call to an anonymous function")
 
 # An error that can be recovered from.
 
@@ -134,11 +134,11 @@
 # If expressions can have many else-clauses.
 
 (if nil
-    (println "wat")
-    (println "oh ok this is fine")
-    (println "all fine"))
+    (println "This shouldn't be seen.")
+    (println "Else clause 1")
+    (println "Else clause 2"))
 
 # If we see this then we've reached the end of the file without
 # encountering a fatal error.
 
-(println "that's all, folks!")
+(println "That's all, folks!")
