@@ -1,0 +1,144 @@
+(println (+ 1 2 3 4 5 6))
+
+(println "Hello, world!")
+(+ 1 2 3 "four")
+
+(fn foo () (println "This function takes no arguments."))
+(foo)
+
+((fn (x) (p x)) "This is a call to an anonymous function")
+
+# An error that can be recovered from.
+
+(undeclared-identifier)
+
+# We have nil and t.
+
+(println nil)
+(println t)
+
+# Multiplication.
+
+(println (* 3 4 2))
+
+(println "Numeric equality:")
+(println "  " (= 1 1))
+(println "  " (= 1 0))
+(println "  " (= 5 5 5))
+(println "  " (= 5 5 6))
+
+# A simple factorial function.
+
+(fn fact (x)
+  (if (= x 0) 1
+    (* x (fact (- x 1)))))
+
+(println (fact 5))
+
+# Combining mathematical operators.
+
+(println (* (- 6 1) 2))
+
+# An error: function parameters must be symbols.
+
+(fn (who 2) (println "foo"))
+
+# Division.
+
+(println (/ 100 5))
+
+# set and setq.
+
+(set 'v "This is v!")
+(println v)
+
+(setq w "Never mind the bollocks, here's a variable.")
+(println w)
+
+(setq w "A new value for w.")
+(println w)
+
+# Printing a function.
+
+(println (quote (fn () (println "foo"))))
+
+# Quoting.
+
+(println '(1 2 3 4 5))
+(println '((1 . 2) . (3 . 4)))
+(println (cons (cons 1 2) (cons 3 4)))
+(println '((1 . 2) . ((3 . 4) . (5 . 6))))
+
+# Local variables implemented with an anonymous function.
+
+(setq counter
+  ((fn (count)
+     (fn ()
+       (setq count (* count 2))
+       count))
+   1))
+
+(println (counter))
+(println (counter))
+(println (counter))
+(println (counter))
+(println (counter))
+(println (counter))
+(println (counter))
+(println (counter))
+(println (counter))
+
+# car and cdr builtins.
+
+(setq list '((1 . 2) 3 4 5))
+(println (car list))
+(println (cdr list))
+
+# Calling a variable that is not a function results in an error.
+
+(list)
+
+# An empty list is the same as nil.
+
+(println ())
+
+# A function that takes a variable number of arguments.
+
+(fn fun (a b . c) c)
+(println (fun "foo" "bar" "baz" "quz"))
+
+# progn builtin.
+
+(println
+ (progn
+   (println "String.")
+   (println (+ 50 32))
+   (println (counter))
+   (fact 6)))
+
+# Numeric comparison.
+
+(println (< 10 9 8 7 6 5 4 3 2 1))
+(println (< 10 9))
+(println (< 10 10))
+(println (< 10 11))
+
+# While loops.
+
+(setq i 0)
+
+(while (< 10 i)
+  (println "foo " i)
+  (setq i (+ i 1)))
+
+# If expressions can have many else-clauses.
+
+(if nil
+    (println "wat")
+    (println "oh ok this is fine")
+    (println "all fine"))
+
+# If we see this then we've reached the end of the file without
+# encountering a fatal error.
+
+(println "that's all, folks!")
