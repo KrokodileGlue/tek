@@ -24,7 +24,7 @@ progn(struct value *env, struct value *list)
 		if (r->type == VAL_ERROR) return r;
 	}
 
-	return r;
+	return r ? r : Nil(list->loc);
 }
 
 /*
@@ -93,7 +93,7 @@ eval_list(struct value *env, struct value *list)
 		tail = tail->cdr;
 	}
 
-	return head;
+	return head ? head : Nil(list->loc);
 }
 
 /*
@@ -123,7 +123,6 @@ eval(struct value *env, struct value *v)
 	case VAL_CELL: {
 		struct value *expanded = expand(env, v);
 		if (expanded != v) return eval(env, expanded);
-
 		struct value *fn = eval(env, v->car);
 		struct value *args = v->cdr;
 		if (fn->type == VAL_ERROR) return fn;

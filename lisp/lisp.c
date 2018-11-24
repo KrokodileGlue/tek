@@ -152,11 +152,8 @@ expand(struct value *env, struct value *v)
 {
 	if (v->type != VAL_CELL || v->car->type != VAL_SYMBOL)
 		return v;
-
 	struct value *bind = find(env, v->car);
-
 	if (!bind || bind->cdr->type != VAL_MACRO) return v;
-
 	return progn(push_env(env, bind->cdr->param, v->cdr),
 	             bind->cdr->body);
 }

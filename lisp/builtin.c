@@ -258,7 +258,15 @@ builtin_cdr(struct value *env, struct value *v)
 struct value *
 builtin_macro(struct value *env, struct value *v)
 {
-	return make_function(env, v, VAL_MACRO);
+	return add_variable(env,
+	                    v->car,
+	                    make_function(env, v->cdr, VAL_MACRO));
+}
+
+struct value *
+builtin_list(struct value *env, struct value *list)
+{
+	return eval_list(env, list);
 }
 
 struct value *
@@ -281,12 +289,13 @@ builtin_while(struct value *env, struct value *v)
 void
 load_builtins(struct value *env)
 {
-	add_builtin(env, "progn",   builtin_progn);
-	add_builtin(env, "macro",   builtin_macro);
 	add_builtin(env, "println", builtin_println);
 	add_builtin(env, "print",   builtin_print);
+	add_builtin(env, "progn",   builtin_progn);
+	add_builtin(env, "macro",   builtin_macro);
 	add_builtin(env, "while",   builtin_while);
 	add_builtin(env, "quote",   builtin_quote);
+	add_builtin(env, "list",    builtin_list);
 	add_builtin(env, "cons",    builtin_cons);
 	add_builtin(env, "setq",    builtin_setq);
 	add_builtin(env, "set",     builtin_set);

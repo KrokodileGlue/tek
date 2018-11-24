@@ -90,13 +90,13 @@
 
 # car and cdr builtins.
 
-(setq list '((1 . 2) 3 4 5))
-(println (car list))
-(println (cdr list))
+(setq a-list '((1 . 2) 3 4 5))
+(println (car a-list))
+(println (cdr a-list))
 
 # Calling a variable that is not a function results in an error.
 
-(list)
+(a-list)
 
 # An empty list is the same as nil.
 
@@ -137,6 +137,15 @@
     (println "This shouldn't be seen.")
     (println "Else clause 1")
     (println "Else clause 2"))
+
+# Macros!
+
+(macro unless (condition expr)
+       (list 'if condition () expr))
+
+(setq i (+ i 1))
+(unless (= i 10) (println "i is not equal to 10."))
+(if (= i 10) (println "i is equal to 10."))
 
 # If we see this then we've reached the end of the file without
 # encountering a fatal error.
