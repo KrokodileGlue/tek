@@ -19,11 +19,11 @@ int main(int argc, char **argv)
 	while ((t = tok(lexer, TALK))) {
 		if (t->type != '(') continue;
 		struct value *e = eval(env, parse(env, lexer));
-		if (e->type != VAL_ERROR) continue;
+		if (!e || e->type != VAL_ERROR) continue;
 		print_error(stdout, e);
 		num_error++;
-		if (num_error < 50) continue;
-		print_error(stdout, error(t->loc,
+		if (num_error < 10) continue;
+		print_error(stdout, error(copy_location(t->loc),
 		                    "encountered too many errors"));
 		break;
 	}

@@ -60,13 +60,10 @@ struct value {
 		builtin *prim;
 	};
 
-	struct location loc;
+	struct location *loc;
 };
 
-struct value *Nil(struct location loc);
-struct value *True(struct location loc);
-
-struct value *Dot, *RParen;
+struct value *Dot, *RParen, *Nil, *True;
 struct value *list_length(struct value *list);
 
 struct value *quote(struct value *v);
@@ -80,11 +77,11 @@ struct value *new_environment(void);
 struct value *push_env(struct value *env,
                        struct value *vars,
                        struct value *values);
-struct value *new_value(struct location loc);
+struct value *new_value(struct location *loc);
 
 struct value *cons(struct value *car, struct value *cdr);
 struct value *acons(struct value *x, struct value *y, struct value *a);
-struct value *make_symbol(struct location loc, const char *s);
+struct value *make_symbol(struct location *loc, const char *s);
 struct value *expand(struct value *env, struct value *v);
 
 struct value *print_value(FILE *f, struct value *v);

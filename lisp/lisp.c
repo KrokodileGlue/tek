@@ -24,27 +24,13 @@ const char **value_name = (const char *[]){
 	"error",
 };
 
-struct value *Dot = &(struct value){VAL_DOT,{0},{0}};
-struct value *RParen = &(struct value){VAL_RPAREN,{0},{0}};
+struct value *Dot = &(struct value){VAL_DOT,{0},0};
+struct value *RParen = &(struct value){VAL_RPAREN,{0},0};
+struct value *Nil = &(struct value){VAL_NIL,{0},0};
+struct value *True = &(struct value){VAL_TRUE,{0},0};
 
 struct value *
-Nil(struct location loc)
-{
-	struct value *v = new_value(loc);
-	v->type = VAL_NIL;
-	return v;
-}
-
-struct value *
-True(struct location loc)
-{
-	struct value *v = new_value(loc);
-	v->type = VAL_TRUE;
-	return v;
-}
-
-struct value *
-new_value(struct location loc)
+new_value(struct location *loc)
 {
 	struct value *v = malloc(sizeof *v);
 	memset(v, 0, sizeof *v);
@@ -55,7 +41,7 @@ new_value(struct location loc)
 struct value *
 quote(struct value *v)
 {
-	return cons(make_symbol(v->loc,"quote"),cons(v,Nil(v->loc)));
+	return cons(make_symbol(v->loc, "quote"), cons(v, Nil));
 }
 
 struct value *
@@ -115,7 +101,7 @@ print_value(FILE *f, struct value *v)
 		             TYPE_NAME(v->type));
 	}
 
-	return Nil(v->loc);
+	return Nil;
 }
 
 struct value *
@@ -135,10 +121,10 @@ acons(struct value *x, struct value *y, struct value *a)
 }
 
 struct value *
-make_symbol(struct location loc, const char *s)
+make_symbol(struct location *loc, const char *s)
 {
-	if (!strcmp(s, "nil")) return Nil(loc);
-	if (!strcmp(s, "t")) return True(loc);
+	if (!strcmp(s, "nil")) return Nil;
+	if (!strcmp(s, "t")) return True;
 
 	struct value *sym = new_value(loc);
 	sym->type = VAL_SYMBOL;
@@ -207,7 +193,7 @@ struct value *
 new_environment(void)
 {
 	struct value *env = new_value(NOWHERE);
-	env->vars = Nil(NOWHERE);
+	env->vars = Nil;
 	load_builtins(env);
 	return env;
 }
@@ -227,7 +213,7 @@ push_env(struct value *env, struct value *vars, struct value *values)
 	/* if (list_length(vars) != list_length(values)) */
 	/* 	error("Cannot apply function: number of argument does not match"); */
 
-	struct value *map = Nil(vars->loc);
+	struct value *map = Nil;
 	struct value *p = vars, *q = values;
 
 	for (;

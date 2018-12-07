@@ -9,7 +9,8 @@
 /*
  * Evaluates each element in `list` and returns the result of the last
  * evaluation. If evaluating an element results in an error,
- * evaluation is stopped and the error is returned.
+ * evaluation is stopped and the error is returned. Returns nil if
+ * given the empty list.
  */
 
 struct value *
@@ -21,10 +22,10 @@ progn(struct value *env, struct value *list)
 	     lp->type != VAL_NIL;
 	     lp = lp->cdr) {
 		r = eval(env, lp->car);
-		if (r->type == VAL_ERROR) return r;
+		if (r && r->type == VAL_ERROR) return r;
 	}
 
-	return r ? r : Nil(list->loc);
+	return r ? r : Nil;
 }
 
 /*
@@ -34,7 +35,7 @@ progn(struct value *env, struct value *list)
 
 static struct value *
 apply(struct value *env,
-      struct location loc,
+      struct location *loc,
       struct value *fn,
       struct value *args)
 {
@@ -86,14 +87,14 @@ eval_list(struct value *env, struct value *list)
 		struct value *tmp = eval(env, l->car);
 		if (tmp->type == VAL_ERROR) return tmp;
 		if (!head) {
-			head = tail = cons(tmp, Nil(list->loc));
+			head = tail = cons(tmp, Nil);
 			continue;
 		}
-		tail->cdr = cons(tmp, Nil(list->loc));
+		tail->cdr = cons(tmp, Nil);
 		tail = tail->cdr;
 	}
 
-	return head ? head : Nil(list->loc);
+	return head ? head : Nil;
 }
 
 /*

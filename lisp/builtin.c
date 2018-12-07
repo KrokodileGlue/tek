@@ -84,14 +84,12 @@ builtin_print(struct value *env, struct value *list)
 		struct value *e = print_value(stdout, p->car);
 		if (e->type == VAL_ERROR) return e;
 	}
-	return Nil(list->loc);
+	return NULL;
 }
 
 struct value *
 builtin_set(struct value *env, struct value *list)
 {
-	/* if (list_length(list) != 2 || list->car->type != TSYMBOL) */
-	/* 	error("Malformed setq"); */
 	struct value *sym = eval(env, list->car);
 	struct value *bind = find(env, sym);
 
@@ -129,7 +127,7 @@ builtin_set(struct value *env, struct value *list)
 	struct value *r = new_value(list->loc); \
 	r->type = VAL_INT; \
 	r->i = sum; \
-	return r; \
+	return r;
 
 struct value *
 builtin_add(struct value *env, struct value *list)
@@ -168,7 +166,7 @@ builtin_eq(struct value *env, struct value *list)
 		if (args->car->type == VAL_INT) {
 			if (first) sum = args->car->i, first = 0;
 			else if (args->car->i != sum)
-				return Nil(list->loc);
+				return Nil;
 			continue;
 		}
 
@@ -178,7 +176,7 @@ builtin_eq(struct value *env, struct value *list)
 		             TYPE_NAME(args->car->type));
 	}
 
-	return True(list->loc);
+	return True;
 }
 
 struct value *
@@ -194,7 +192,7 @@ builtin_less(struct value *env, struct value *v)
 		if (args->car->type == VAL_INT) {
 			if (first) sum = args->car->i, first = 0;
 			else if (args->car->i >= sum)
-				return Nil(v->loc);
+				return Nil;
 			continue;
 		}
 
@@ -204,7 +202,7 @@ builtin_less(struct value *env, struct value *v)
 		             TYPE_NAME(args->car->type));
 	}
 
-	return True(v->loc);
+	return True;
 }
 
 struct value *
@@ -280,8 +278,10 @@ builtin_while(struct value *env, struct value *v)
 {
 	struct value *c, *r;
 
-	while ((c = eval(env, v->car)) && c->type == VAL_TRUE)
+	while ((c = eval(env, v->car)) && c->type == VAL_TRUE) {
 		r = progn(env, v->cdr);
+		if (r->type == VAL_ERROR) return r;
+	}
 
 	return r;
 }

@@ -23,10 +23,11 @@ parse_expr(struct value *env, struct lexer *l)
 	case '.': return Dot;
 	case '\'': return quote(parse_expr(env, l));
 
-	case TOK_IDENT: return make_symbol(t->loc, t->body);
+	case TOK_IDENT:
+		return make_symbol(copy_location(t->loc), t->body);
 
 	case TOK_STR: {
-		struct value *v = new_value(t->loc);
+		struct value *v = new_value(&t->loc);
 		v->type = VAL_STRING;
 		v->s = malloc(t->loc.len);
 		strcpy(v->s, t->s);
@@ -34,14 +35,14 @@ parse_expr(struct value *env, struct lexer *l)
 	} break;
 
 	case TOK_INT: {
-		struct value *v = new_value(t->loc);
+		struct value *v = new_value(&t->loc);
 		v->type = VAL_INT;
 		v->i = t->i;
 		return v;
 	} break;
 
 	default:
-		return error(t->loc, "unexpected `%s'", t->body);
+		return error(&t->loc, "unexpected `%s'", t->body);
 	}
 
 	return NULL;
@@ -50,28 +51,30 @@ parse_expr(struct value *env, struct lexer *l)
 struct value *
 parse(struct value *env, struct lexer *l)
 {
-	struct value *head = Nil(l->loc), *tail = head;
+	struct value *head = Nil, *tail = head;
 
 	for (;;) {
-		struct location loc = l->loc;
+		struct location *loc = copy_location(l->loc);
 		struct value *o = parse_expr(env, l);
 		if (!o) return error(loc, "unmatched `('");
+		free(loc);
 		if (o == RParen) return head;
 
 		if (o == Dot) {
 			tail->cdr = parse_expr(env, l);
 			if (parse_expr(env, l) != RParen)
-				return error(l->loc, "expected `)'");
+				return error(copy_location(l->loc),
+				             "expected `)'");
 			return head;
 		}
 
 		if (head->type == VAL_NIL) {
-			head = cons(o, Nil(l->loc));
+			head = cons(o, Nil);
 			tail = head;
 			continue;
 		}
 
-		tail->cdr = cons(o, Nil(l->loc));
+		tail->cdr = cons(o, Nil);
 		tail = tail->cdr;
 	}
 }

@@ -7,7 +7,7 @@
 #include "lisp.h"
 
 struct value *
-error(struct location loc, const char *fmt, ...)
+error(struct location *loc, const char *fmt, ...)
 {
 	struct value *v = new_value(loc);
 	v->type = VAL_ERROR;
@@ -36,11 +36,11 @@ print_error(FILE *f, struct value *e)
 {
 	fprintf(f, "%s: %s:%u:%u: %s\n\t",
 	        (char *[]){"error","note"}[e->type - VAL_ERROR],
-	        e->loc.file,
-	        e->loc.line + 1, e->loc.column, e->s);
+	        e->loc->file,
+	        e->loc->line + 1, e->loc->column, e->s);
 
-	unsigned i = e->loc.idx;
-	const char *a = e->loc.text;
+	unsigned i = e->loc->idx;
+	const char *a = e->loc->text;
 
 	while (i && a[i] != '\n') i--;
 	if (a[i] == '\n') i++;
@@ -49,12 +49,12 @@ print_error(FILE *f, struct value *e)
 
 	fprintf(f, "\n\t");
 
-	for (unsigned i = 0; i < e->loc.column; i++)
+	for (unsigned i = 0; i < e->loc->column; i++)
 		fputc(isspace(a[j + i]) ? a[j + i] : ' ', f);
 
 	fputc('^', f);
 
-	for (unsigned i = 1; i < e->loc.len; i++)
+	for (unsigned i = 1; i < e->loc->len; i++)
 		fputc('~', f);
 
 	fputc('\n', f);
