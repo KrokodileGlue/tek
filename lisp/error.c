@@ -14,16 +14,16 @@ error(struct location *loc, const char *fmt, ...)
 	v->loc = loc;
 
 	int l = strlen(fmt) + 1;
-	v->s = malloc(l);
+	v->errmsg = malloc(l);
 
 	va_list args;
 	va_start(args, fmt);
-	int len = vsnprintf(v->s, l, fmt, args) + 1;
+	int len = vsnprintf(v->errmsg, l, fmt, args) + 1;
 
 	if (len > l) {
-		v->s = realloc(v->s, len);
+		v->errmsg = realloc(v->errmsg, len);
 		va_start(args, fmt);
-		vsnprintf(v->s, len, fmt, args);
+		vsnprintf(v->errmsg, len, fmt, args);
 	}
 
 	va_end(args);
@@ -37,7 +37,7 @@ print_error(FILE *f, struct value *e)
 	fprintf(f, "%s: %s:%u:%u: %s\n\t",
 	        (char *[]){"error","note"}[e->type - VAL_ERROR],
 	        e->loc->file,
-	        e->loc->line + 1, e->loc->column, e->s);
+	        e->loc->line + 1, e->loc->column, e->errmsg);
 
 	unsigned i = e->loc->idx;
 	const char *a = e->loc->text;

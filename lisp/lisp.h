@@ -2,6 +2,7 @@
 #define LISP_H
 
 #include <stdio.h>
+#include <kdg/kdgu.h>
 #include "location.h"
 #include "lex.h"
 
@@ -17,6 +18,7 @@ struct value {
 		VAL_FUNCTION,
 		VAL_MACRO,
 		VAL_ENV,
+		VAL_ARRAY,
 
 		/* GC marker. */
 		VAL_MOVED,
@@ -36,7 +38,8 @@ struct value {
 
 	union {
 		int i;
-		char *s;
+		kdgu *s;
+		char *errmsg;
 
 		/* Cell. */
 		struct {
@@ -54,6 +57,12 @@ struct value {
 		struct {
 			struct value *vars;
 			struct value *up;
+		};
+
+		/* Array. */
+		struct {
+			struct value **arr;
+			unsigned num;
 		};
 
 		/* Builtin. */

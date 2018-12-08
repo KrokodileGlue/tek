@@ -132,7 +132,7 @@ tok(struct lexer *l, enum mode mode)
 
 	switch (t->type) {
 	case TOK_STR:
-		t->s = lex_escapes(t);
+		t->s = kdgu_news(lex_escapes(t));
 		break;
 	case TOK_INT:
 		t->i = atoi(t->body);

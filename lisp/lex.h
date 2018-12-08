@@ -2,6 +2,7 @@
 #define LEX_H
 
 #include <stdio.h>
+#include <kdg/kdgu.h>
 #include "location.h"
 
 struct token {
@@ -31,7 +32,7 @@ struct token {
 	 */
 
 	union {
-		char *s;       /* String contents.                  */
+		kdgu *s;       /* String contents.                  */
 		int i;         /* Integer.                          */
 	};
 };

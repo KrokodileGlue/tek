@@ -85,6 +85,7 @@ eval_list(struct value *env, struct value *list)
 	     l->type != VAL_NIL;
 	     l = l->cdr) {
 		struct value *tmp = eval(env, l->car);
+		if (!tmp) return Nil;
 		if (tmp->type == VAL_ERROR) return tmp;
 		if (!head) {
 			head = tail = cons(tmp, Nil);
@@ -112,7 +113,7 @@ eval(struct value *env, struct value *v)
 
 	case VAL_INT:     case VAL_STRING:
 	case VAL_BUILTIN: case VAL_FUNCTION:
-	case VAL_ERROR:
+	case VAL_ERROR:   case VAL_ARRAY:
 	case VAL_TRUE:    case VAL_NIL:
 		return v;
 

@@ -2,10 +2,10 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#include "builtin.h"
-#include "error.h"
 #include "eval.h"
 #include "util.h"
+#include "error.h"
+#include "builtin.h"
 
 /*
  * Verifies that `v` is a well-formed function and returns a new
@@ -84,7 +84,7 @@ builtin_print(struct value *env, struct value *list)
 		struct value *e = print_value(stdout, p->car);
 		if (e->type == VAL_ERROR) return e;
 	}
-	return NULL;
+	return Nil;
 }
 
 struct value *
@@ -286,10 +286,90 @@ builtin_while(struct value *env, struct value *v)
 	return r;
 }
 
+struct value *
+builtin_nth(struct value *env, struct value *v)
+{
+	if (v->type != VAL_CELL
+	    || v->cdr->type != VAL_CELL
+	    || v->cdr->cdr->type != VAL_NIL)
+		return error(v->loc,
+		             "builtin `nth' requires two arguments");
+
+	struct value *i = eval(env, v->cdr->car);
+	if (i->type != VAL_INT)
+		return error(v->loc,
+		             "builtin `nth' requires a numeric second"
+		             " argument");
+
+	struct value *arr = eval(env, v->car);
+	if (arr->type != VAL_ARRAY
+	    && !IS_LIST(v)
+	    && arr->type != VAL_STRING)
+		return error(v->loc,
+		             "builtin `nth' requires an array, list,"
+		             "or string argument (got %s)",
+		             " (this is %s %s)",
+		             IS_VOWEL(*TYPE_NAME(arr->type))
+		             ? "an" : "a",
+		             TYPE_NAME(arr->type));
+
+	/* TODO: lists */
+
+	if (arr->type == VAL_STRING) {
+		unsigned idx = 0;
+
+		for (int j = 0; j < i->i; j++)
+			kdgu_next(arr->s, &idx);
+
+		struct value *str = new_value(v->loc);
+		str->s = kdgu_getchr(arr->s, idx);
+		str->type = VAL_STRING;
+		return str;
+	}
+
+	return eval(env, v->car)->arr[i->i];
+}
+
+struct value *
+builtin_length(struct value *env, struct value *v)
+{
+	if (v->cdr->type != VAL_NIL)
+		return error(v->loc,
+		             "builtin `length' takes one argument");
+
+	struct value *arr = eval(env, v->car);
+
+	if (arr->type == VAL_ARRAY) {
+		struct value *l = new_value(v->loc);
+		l->type = VAL_INT;
+		l->i = arr->num;
+		return l;
+	} else if (IS_LIST(arr)) {
+		return list_length(arr);
+	} else if (arr->type == VAL_STRING) {
+		struct value *l = new_value(v->loc);
+		l->type = VAL_INT;
+		l->i = kdgu_len(arr->s);
+		return l;
+	} else {
+		return error(v->loc,
+		             "builtin `length' takes a list, array,"
+		             " or string argument (this is %s %s)",
+		             IS_VOWEL(*TYPE_NAME(arr->type))
+		             ? "an" : "a",
+		             TYPE_NAME(arr->type));
+	}
+
+	/* Unreachable. */
+
+	return Nil;
+}
+
 void
 load_builtins(struct value *env)
 {
 	add_builtin(env, "println", builtin_println);
+	add_builtin(env, "length",  builtin_length);
 	add_builtin(env, "print",   builtin_print);
 	add_builtin(env, "progn",   builtin_progn);
 	add_builtin(env, "macro",   builtin_macro);
@@ -298,6 +378,7 @@ load_builtins(struct value *env)
 	add_builtin(env, "list",    builtin_list);
 	add_builtin(env, "cons",    builtin_cons);
 	add_builtin(env, "setq",    builtin_setq);
+	add_builtin(env, "nth",     builtin_nth);
 	add_builtin(env, "set",     builtin_set);
 	add_builtin(env, "car",     builtin_car);
 	add_builtin(env, "cdr",     builtin_cdr);

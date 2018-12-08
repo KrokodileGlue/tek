@@ -147,6 +147,34 @@
 (unless (= i 10) (println "i is not equal to 10."))
 (if (= i 10) (println "i is equal to 10."))
 
+(println [1 2 3])
+(setq my-array [0 1 "foo" 3 (fn (x) (println x)) 5])
+(println (nth my-array 5))
+(println (nth my-array 2))
+(println (println 2))
+
+(println (length my-array))
+
+(setq i 0)
+(while (< (length my-array) i)
+  (print (nth my-array i) " ")
+  (setq i (+ i 1)))
+
+(println)
+
+(println (nth ["foo" "bar" "baz"] 0))
+(println (nth ["foo" "bar" "baz"] 1))
+(println (nth ["foo" "bar" "baz"] 2))
+
+(println (length '(1 2 3 4 5)))
+(println (length '(1 2 3 4 . 5)))
+
+(println (length 2))
+(println (length "string"))
+(println (length "<süß>"))
+(println (nth "<süß>" 2))
+(println (nth "<süß>" 3))
+
 # If we see this then we've reached the end of the file without
 # encountering a fatal error.
 

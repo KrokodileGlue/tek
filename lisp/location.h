@@ -9,8 +9,13 @@ struct location {
 	const char *text;      /* Complete body of the file.        */
 };
 
-static struct location *NOWHERE = &(struct location){-1,0,0,0,"*none*","<none>"};
-static struct location *BUILTIN = &(struct location){0,0,0,0,"built-in-function","<internal implementation>"};
+static struct location *NOWHERE = &(struct location){
+	-1,0,0,0,"*none*","<none>"
+};
+
+static struct location *BUILTIN = &(struct location){
+	0,0,0,0,"built-in-function","<internal implementation>"
+};
 
 #include <stdlib.h>
 

@@ -2,8 +2,8 @@
 #include <string.h>
 #include <assert.h>
 
-#include "builtin.h"
 #include "error.h"
+#include "builtin.h"
 #include "lisp.h"
 #include "eval.h"
 
@@ -16,6 +16,7 @@ const char **value_name = (const char *[]){
 	"function",
 	"macro",
 	"env",
+	"array",
 	"moved",
 	"true",
 	"nil",
@@ -73,12 +74,16 @@ print_value(FILE *f, struct value *v)
 {
 	switch (v->type) {
 	case VAL_SYMBOL:
-	case VAL_STRING: fprintf(f, "%s", v->s); break;
+	case VAL_STRING: kdgu_print(v->s, f);    break;
 	case VAL_INT:    fprintf(f, "%d", v->i); break;
 	case VAL_TRUE:   fprintf(f, "true");     break;
 	case VAL_NIL:    fprintf(f, "nil");      break;
 	case VAL_FUNCTION:
 		fprintf(f, "<function:%p>", v);
+		break;
+	case VAL_ARRAY:
+		for (unsigned i = 0; i < v->num; i++)
+			print_value(f, v->arr[i]);
 		break;
 	case VAL_CELL:
 		fputc('(', f);
@@ -128,8 +133,7 @@ make_symbol(struct location *loc, const char *s)
 
 	struct value *sym = new_value(loc);
 	sym->type = VAL_SYMBOL;
-	sym->s = malloc(strlen(s) + 1);
-	strcpy(sym->s, s);
+	sym->s = kdgu_news(s);
 	return sym;
 }
 
@@ -166,7 +170,8 @@ find(struct value *env, struct value *sym)
 	     c->type != VAL_NIL;
 	     c = c->cdr) {
 		struct value *bind = c->car;
-		if (!strcmp(sym->s, bind->car->s)) return bind;
+		if (kdgu_cmp(sym->s, bind->car->s, false, NULL))
+			return bind;
 	}
 
 	return find(env->up, sym);
@@ -250,7 +255,7 @@ print_tree(FILE *f, struct value *v)
 		p("(builtin:%p)", v->prim);
 		break;
 	case VAL_SYMBOL:
-		p("(symbol:%s)", v->s);
+		p("(symbol:%.*s)", v->s->len, v->s->s);
 		break;
 	case VAL_CELL:
 		p("(cell)");
@@ -262,7 +267,7 @@ print_tree(FILE *f, struct value *v)
 		l--;
 		break;
 	case VAL_STRING:
-		p("\"%s\"", v->s);
+		p("\"%.*s\"", v->s->len, v->s->s);
 		break;
 	case VAL_INT:
 		p("(int:%d)", v->i);

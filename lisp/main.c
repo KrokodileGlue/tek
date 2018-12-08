@@ -1,11 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "error.h"
 #include "lex.h"
 #include "util.h"
 #include "parse.h"
 #include "eval.h"
-#include "error.h"
 
 int main(int argc, char **argv)
 {
@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 		if (!e || e->type != VAL_ERROR) continue;
 		print_error(stdout, e);
 		num_error++;
-		if (num_error < 10) continue;
+		if (num_error < 15) continue;
 		print_error(stdout, error(copy_location(t->loc),
 		                    "encountered too many errors"));
 		break;

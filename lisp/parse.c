@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "error.h"
 #include "parse.h"
 #include "lex.h"
 #include "eval.h"
-#include "error.h"
 
 static struct value *
 parse_expr(struct value *env, struct lexer *l)
@@ -22,6 +22,22 @@ parse_expr(struct value *env, struct lexer *l)
 	case ')': return RParen;
 	case '.': return Dot;
 	case '\'': return quote(parse_expr(env, l));
+	case '[': {
+		struct value *v = new_value(&t->loc);
+		v->type = VAL_ARRAY;
+		struct value *arr[512];
+		unsigned num = 0;
+
+		while ((t = tok(l, CODE)) && t->type != ']') {
+			l->loc = t->loc;
+			arr[num++] = parse_expr(env, l);
+		}
+
+		v->arr = malloc(num * sizeof *v->arr);
+		memcpy(v->arr, arr, num * sizeof *v->arr);
+		v->num = num;
+		return v;
+	} break;
 
 	case TOK_IDENT:
 		return make_symbol(copy_location(t->loc), t->body);
@@ -29,8 +45,7 @@ parse_expr(struct value *env, struct lexer *l)
 	case TOK_STR: {
 		struct value *v = new_value(&t->loc);
 		v->type = VAL_STRING;
-		v->s = malloc(t->loc.len);
-		strcpy(v->s, t->s);
+		v->s = kdgu_copy(t->s);
 		return v;
 	} break;
 
