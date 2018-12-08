@@ -175,6 +175,28 @@
 (println (nth "<süß>" 2))
 (println (nth "<süß>" 3))
 
+(println
+ (nth
+  (nth [
+       ["a" "b" "c"]
+       ["d" "e" "f"]
+       ["g" "h" "i"]
+       ["j" "k" "l"]
+       ["m" "n" "o"]
+       ]
+       2)
+  1))
+
+(println (s "[aeiouy]+" "o" "gi" "all vowels will be replaced with \"o\""))
+(println (s "\w+" "foo" "gi" "foo bar baz"))
+(println (s "\p{script=greek}+"
+	    "börk"
+	    "gi"
+	    "As the ancient sophist Protagoras once said, \"πάντων
+	    χρημάτων μέτρον ἔστὶν ἄνθρωπος, τῶν δὲ μὲν οντῶν ὡς ἔστιν,
+	    τῶν δὲ οὐκ ὄντων ὠς οὐκ ἔστιν.\""))
+(println (s "(?|(\w)(\w)|(\w)())" "\l$1\u$2" "gi" "stupid people at MIT"))
+
 # If we see this then we've reached the end of the file without
 # encountering a fatal error.
 

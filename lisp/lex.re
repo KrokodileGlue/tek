@@ -86,7 +86,10 @@ lex_escapes(struct token *t)
 		switch (t->body[i]) {
 		case 'n': r[j++] = '\n'; break;
 		case 't': r[j++] = '\t'; break;
-		default: r[j++] = t->body[i];
+		case '"': r[j++] = '"'; break;
+		default:
+			r[j++] = '\\';
+			r[j++] = t->body[i];
 		}
 	}
 

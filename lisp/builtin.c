@@ -365,6 +365,34 @@ builtin_length(struct value *env, struct value *v)
 	return Nil;
 }
 
+struct value *
+builtin_s(struct value *env, struct value *v)
+{
+	struct value *pattern = eval(env, v->car);
+	struct value *replace = eval(env, v->cdr->car);
+	struct value *options = eval(env, v->cdr->cdr->car);
+	struct value *subject = eval(env, v->cdr->cdr->cdr->car);
+
+	int opt = 0;
+
+	for (unsigned i = 0; i < options->s->len; i++) {
+		switch (options->s->s[i]) {
+		case 'g': opt |= KTRE_GLOBAL; break;
+		case 'i': opt |= KTRE_INSENSITIVE; break;
+		default: return error(v->loc,
+		                      "unrecognized mode modifier");
+		}
+	}
+
+	kdgu *res = ktre_replace(subject->s, pattern->s, replace->s, &KDGU("$"), opt);
+
+	struct value *str = new_value(v->loc);
+	str->type = VAL_STRING;
+	str->s = res;
+
+	return str;
+}
+
 void
 load_builtins(struct value *env)
 {
@@ -390,4 +418,5 @@ load_builtins(struct value *env)
 	add_builtin(env, "/",       builtin_div);
 	add_builtin(env, "=",       builtin_eq);
 	add_builtin(env, "<",       builtin_less);
+	add_builtin(env, "s",       builtin_s);
 }
